@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SkyAI™ Enterprise Mission Deck // Hugo Voice AI Sovereign Conduit</title>
+<!-- Google Fonts: Space Grotesk, Inter, JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Three.js for true live 3D Swarm canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "void-black": "#000000",
+            "void-base": "#050608",
+            "void-surface": "#0c0d10",
+            "void-elevated": "#12141a",
+            "border-glass": "rgba(255, 255, 255, 0.08)",
+            "border-glass-highlight": "rgba(255, 255, 255, 0.16)",
+            "primary-white": "#ffffff",
+            "monochrome-bright": "#f4f4f5",
+            "monochrome-mid": "#e4e4e7",
+            "monochrome-muted": "#a1a1aa",
+            "monochrome-dark": "#3f3f46",
+            "orange-molten": "#ea580c",
+            "orange-burnt": "#c2410c",
+            "orange-vibrant": "#f97316",
+            "orange-glow": "#ff7a18",
+            "dark-crimson": "#7f1d1d",
+            "crimson-glow": "#ef4444"
+          },
+          fontFamily: {
+            "headline": ["Space Grotesk", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "telemetry": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    
+    /* 60% Black / 30% Monochrome / 10% Deep Orange Architectural Glass */
+    .hud-glass-panel {
+      background: radial-gradient(circle at 50% 0%, rgba(18, 20, 26, 0.88) 0%, rgba(5, 6, 8, 0.98) 100%);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    }
+
+    .hud-glass-panel:hover {
+      border-color: rgba(249, 115, 22, 0.28);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.98), 0 0 20px rgba(234, 88, 12, 0.08);
+    }
+
+    .hud-laser-border {
+      position: relative;
+    }
+    .hud-laser-border::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.8), transparent);
+    }
+
+    /* OFFICIAL CANONICAL HUGO VAPOR CONIC KEYFRAMES (Deep Orange & Molten Amber) */
+    @keyframes spin-clockwise {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spin-counter {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    @keyframes molten-breathe {
+      0%, 100% { opacity: 0.82; transform: scale(1); }
+      50% { opacity: 0.98; transform: scale(1.03); }
+    }
+    .corona-clock {
+      animation: spin-clockwise 18s linear infinite;
+    }
+    .corona-counter {
+      animation: spin-counter 26s linear infinite;
+    }
+
+    /* Collapsible card animation */
+    .widget-body {
+      transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, padding 0.3s ease;
+      overflow: hidden;
+    }
+    .widget-collapsed .widget-body {
+      max-height: 0 !important;
+      opacity: 0;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    .widget-collapsed .widget-chevron {
+      transform: rotate(-90deg);
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #000000;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 2px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ea580c;
+    }
+  </style>
+</head>
+<body class="bg-black text-monochrome-mid font-body overflow-x-hidden min-h-screen relative select-none antialiased">
+<!-- ================= 60% OBSIDIAN 3D NEURAL CANVAS ================= -->
+<div class="fixed inset-0 w-full h-full z-0 overflow-hidden bg-black pointer-events-auto">
+<canvas class="w-full h-full block cursor-grab active:cursor-grabbing opacity-70" id="threejs-swarm-canvas"></canvas>
+<!-- Vector grid overlay: subtle dark wireframe -->
+<div class="absolute inset-0 pointer-events-none opacity-10 bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+<!-- Deep Obsidian Light Fade -->
+<div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-black via-black/40 to-black/95"></div>
+</div>
+<!-- ================= FOREGROUND ENTERPRISE COCKPIT ================= -->
+<div class="relative z-10 flex flex-col min-h-screen justify-between pointer-events-none">
+<!-- 1. TOP TELEMETRY STRIP & VOICE CONDUIT -->
+<header class="w-full bg-[#050608]/95 backdrop-blur-2xl border-b border-white/[0.08] px-4 md:px-6 py-2.5 pointer-events-auto shadow-2xl">
+<div class="flex items-center justify-between gap-4 max-w-[1920px] mx-auto">
+<!-- Logo & System Status -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[#1a1c24] to-[#000000] border border-white/20 flex items-center justify-center shadow-[0_0_15px_rgba(234,88,12,0.22)] relative overflow-hidden group">
+<div class="absolute inset-0 bg-orange-molten/10 group-hover:bg-orange-molten/20 transition-colors"></div>
+<span class="font-headline font-black text-xs text-white tracking-tighter relative z-10 flex items-center">
+                SK<span class="text-orange-vibrant">¥</span>
+</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-headline font-bold text-sm tracking-wider text-white uppercase">SkyAI™ Sovereign Voice Deck</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-telemetry font-bold bg-[#14151b] text-orange-vibrant border border-orange-molten/40">GOD MODE v4.98</span>
+</div>
+<p class="text-[10px] font-telemetry text-monochrome-muted flex items-center gap-1.5 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-orange-vibrant animate-ping"></span>
+                AUTONOMOUS VOICE SWARM // 531 NODES // 1,040 CONDUITS
+              </p>
+</div>
+</div>
+<div class="h-6 w-[1px] bg-white/10 hidden xl:block"></div>
+<!-- Enterprise Telemetry Cluster -->
+<div class="hidden xl:flex items-center gap-2 font-telemetry text-xs">
+<div class="px-2.5 py-1 rounded bg-[#090a0d] border border-white/[0.08] text-monochrome-muted flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-white">memory</span>
+<span>CPU: <strong class="text-white font-semibold">14.2%</strong></span>
+</div>
+<div class="px-2.5 py-1 rounded bg-[#090a0d] border border-white/[0.08] text-monochrome-muted flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-white">speed</span>
+<span>RAM: <strong class="text-white font-semibold">6.2 / 32 GB</strong></span>
+</div>
+<div class="px-2.5 py-1 rounded bg-[#090a0d] border border-white/[0.08] text-monochrome-muted flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-orange-vibrant">graphic_eq</span>
+<span>n8n Voice: <strong class="text-white font-semibold">42 Act</strong></span>
+</div>
+<div class="px-2.5 py-1 rounded bg-[#090a0d] border border-white/[0.08] text-monochrome-muted flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-orange-vibrant">record_voice_over</span>
+<span>Opus Voice: <strong class="text-orange-vibrant font-bold">12ms</strong></span>
+</div>
+</div>
+</div>
+<!-- CENTER SPEECH & TALK STATUS CONDUIT -->
+<div class="flex-1 max-w-2xl mx-4 hidden lg:flex items-center">
+<div class="w-full bg-[#08090d]/95 border border-white/10 rounded-xl px-3.5 py-1.5 flex items-center gap-3.5 shadow-[0_0_24px_rgba(0,0,0,0.9)] hud-laser-border">
+<span class="w-2.5 h-2.5 rounded-full bg-orange-vibrant animate-ping shrink-0 shadow-[0_0_10px_#f97316]"></span>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between text-[10px] font-telemetry">
+<span class="text-white font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  HUGO LIVE VOICE AGENT // <span class="text-orange-vibrant font-medium">Zoey_OS v4.9</span>
+</span>
+<span class="text-monochrome-muted">WebRTC • 0.8ms • PCM 48kHz</span>
+</div>
+<p class="text-xs font-body text-monochrome-bright truncate italic mt-0.5">
+                "Voice conduit synchronized Zubair. All sub-agents armed. 3 HITL decisions awaiting executive confirmation."
+              </p>
+</div>
+<!-- Dynamic Voice Waveform Simulator -->
+<div class="flex items-center gap-0.5 h-6 px-1 shrink-0" id="header-waveform">
+<span class="w-1 bg-orange-vibrant rounded-full transition-all duration-150 h-3"></span>
+<span class="w-1 bg-white rounded-full transition-all duration-150 h-5"></span>
+<span class="w-1 bg-orange-molten rounded-full transition-all duration-150 h-2"></span>
+<span class="w-1 bg-monochrome-bright rounded-full transition-all duration-150 h-6"></span>
+<span class="w-1 bg-orange-vibrant rounded-full transition-all duration-150 h-4"></span>
+<span class="w-1 bg-white rounded-full transition-all duration-150 h-2"></span>
+</div>
+</div>
+</div>
+<!-- RIGHT COMMAND CONTROLS -->
+<div class="flex items-center gap-2.5">
+<button class="px-3.5 py-1.5 rounded-lg bg-orange-vibrant hover:bg-orange-molten text-black text-xs font-headline font-bold flex items-center gap-1.5 transition-all shadow-[0_0_16px_rgba(249,115,22,0.35)]" id="btn-talk-hud" onclick="toggleTalkHUD()">
+<span class="material-symbols-outlined text-sm font-bold" style="font-variation-settings: 'FILL' 1;">mic</span>
+<span class="tracking-wide">HANDS-FREE TALK</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg bg-[#18090b] hover:bg-[#280c10] text-rose-300 text-xs font-headline font-bold flex items-center gap-1.5 border border-rose-900/50 transition-all">
+<span class="material-symbols-outlined text-sm">emergency_home</span>
+<span class="hidden sm:inline">SWARM FAILSAFE</span>
+</button>
+<!-- Modularity Customization Drawer Trigger -->
+<button class="p-1.5 rounded-lg bg-[#0e1017] hover:bg-[#1a1e29] border border-white/10 text-monochrome-muted hover:text-white transition-colors" onclick="toggleLayoutCustomizer()" title="Customize HUD Layout">
+<span class="material-symbols-outlined text-base">dashboard_customize</span>
+</button>
+<!-- Commander Profile -->
+<div class="flex items-center gap-2 pl-2 border-l border-white/10">
+<div class="w-8 h-8 rounded-full border border-orange-molten/50 bg-[#12131a] flex items-center justify-center text-xs font-telemetry font-bold text-white shadow-inner">
+              OP
+            </div>
+<div class="hidden 2xl:block text-left">
+<div class="text-[11px] font-headline font-bold text-white leading-tight">COMMANDER</div>
+<div class="text-[9px] font-telemetry text-monochrome-muted">ZUBAIR • ROOT</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- 2. GRAPH FILTER & COMMAND BAR -->
+<div class="w-full px-4 md:px-6 pt-2 pointer-events-auto flex justify-center">
+<div class="w-full max-w-5xl hud-glass-panel rounded-2xl p-2.5 flex flex-col gap-2 shadow-2xl">
+<div class="flex items-center justify-between gap-3">
+<!-- Omnibar Search -->
+<div class="relative flex-1 flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-monochrome-muted text-base">search</span>
+<input class="w-full bg-[#030406]/95 border border-white/10 rounded-xl pl-9 pr-24 py-1.5 text-xs font-telemetry text-white placeholder-monochrome-muted focus:outline-none focus:border-orange-vibrant/70 transition-colors" id="brain-search" placeholder="Search Voice Swarm [⌘K] • 531 nodes • 1,040 conduits" type="text"/>
+<div class="absolute right-2 flex items-center gap-1 text-[10px] font-telemetry text-monochrome-muted bg-[#12141c] px-2 py-0.5 rounded border border-white/10">
+<span>⌘K</span>
+</div>
+</div>
+<!-- 3D Swarm Control Toggles -->
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-3 py-1.5 rounded-xl bg-orange-vibrant/15 hover:bg-orange-vibrant/25 text-white text-xs font-telemetry border border-orange-vibrant/40 flex items-center gap-1.5 font-bold transition-all" id="btn-fit-swarm" onclick="resetSwarmView()">
+<span class="w-2 h-2 rounded-full bg-orange-vibrant"></span>
+<span>Fit 3D Core</span>
+</button>
+<button class="px-3 py-1.5 rounded-xl bg-[#090a0e] hover:bg-[#151722] text-monochrome-muted hover:text-white text-xs font-telemetry border border-white/10 transition-colors" id="btn-toggle-particles" onclick="toggleSwarmDensity()">
+              Swarm: <span class="text-white" id="swarm-density-text">Active</span>
+</button>
+</div>
+</div>
+<!-- Node Classification Pills (High contrast monochrome with orange active indicators) -->
+<div class="flex items-center gap-1.5 overflow-x-auto text-[11px] font-telemetry pb-0.5 no-scrollbar">
+<span class="text-monochrome-muted text-[10px] uppercase font-bold tracking-wider mr-1 shrink-0">Classification:</span>
+<button class="px-2.5 py-0.5 rounded-lg bg-white text-black font-semibold shrink-0">All (531)</button>
+<button class="px-2.5 py-0.5 rounded-lg bg-[#0a0c10] hover:bg-[#141720] text-monochrome-muted hover:text-white border border-white/10 shrink-0">Voice Conduits 42</button>
+<button class="px-2.5 py-0.5 rounded-lg bg-[#0a0c10] hover:bg-[#141720] text-orange-vibrant border border-orange-vibrant/30 shrink-0">Autonomous Brain 23</button>
+<button class="px-2.5 py-0.5 rounded-lg bg-[#0a0c10] hover:bg-[#141720] text-monochrome-mid border border-white/10 shrink-0">Tooling 197</button>
+<button class="px-2.5 py-0.5 rounded-lg bg-[#0a0c10] hover:bg-[#141720] text-monochrome-muted border border-white/10 shrink-0">SLA Contracts 13</button>
+<button class="px-2.5 py-0.5 rounded-lg bg-[#0a0c10] hover:bg-[#141720] text-monochrome-muted border border-white/10 shrink-0">Mercury Wire 19</button>
+<button class="px-2.5 py-0.5 rounded-lg bg-[#0a0c10] hover:bg-[#141720] text-monochrome-muted border border-white/10 shrink-0">Files 195</button>
+</div>
+</div>
+</div>
+<!-- 3. MAIN COCKPIT: LEFT FLANK + CENTER VOICE AI & HUGO ORB + RIGHT FLANK -->
+<main class="w-full flex-1 px-4 md:px-6 py-3 flex flex-col xl:flex-row justify-between gap-4 pointer-events-none items-stretch xl:items-center overflow-y-auto xl:overflow-hidden">
+<!-- ================= LEFT FLANK (COLLAPSIBLE / MODULAR) ================= -->
+<aside class="w-full xl:w-[360px] flex flex-col gap-3 pointer-events-auto shrink-0 order-2 xl:order-1">
+<!-- WIDGET 1: Bio-Engine Readiness -->
+<div class="hud-glass-panel rounded-2xl p-3.5 flex flex-col gap-2.5 transition-all" id="widget-bio">
+<div class="flex items-center justify-between border-b border-white/[0.08] pb-2 cursor-pointer" onclick="toggleWidget('widget-bio')">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-monochrome-muted hover:text-white cursor-grab text-base" title="Drag to reorder">drag_indicator</span>
+<span class="material-symbols-outlined text-orange-vibrant text-base" style="font-variation-settings: 'FILL' 1;">vital_signs</span>
+<h3 class="text-xs font-headline font-bold uppercase tracking-wider text-white">Executive Readiness</h3>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[9px] font-telemetry px-1.5 py-0.5 rounded bg-white/10 text-white border border-white/20">WHOOP 4.0</span>
+<button class="widget-chevron text-monochrome-muted hover:text-white transition-transform">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+<div class="widget-body flex flex-col gap-2.5">
+<div class="grid grid-cols-3 gap-2">
+<div class="bg-black/90 border border-white/10 rounded-xl p-2 text-center">
+<span class="text-[9px] font-telemetry text-monochrome-muted block">RECOVERY</span>
+<span class="text-xl font-headline font-bold text-white">88%</span>
+<span class="text-[9px] font-telemetry text-orange-vibrant block font-medium">Optimal</span>
+</div>
+<div class="bg-black/90 border border-white/10 rounded-xl p-2 text-center">
+<span class="text-[9px] font-telemetry text-monochrome-muted block">SLEEP</span>
+<span class="text-xl font-headline font-bold text-white">7h 42m</span>
+<span class="text-[9px] font-telemetry text-monochrome-muted block">+14% REM</span>
+</div>
+<div class="bg-black/90 border border-white/10 rounded-xl p-2 text-center">
+<span class="text-[9px] font-telemetry text-monochrome-muted block">STRAIN</span>
+<span class="text-xl font-headline font-bold text-white">12.4</span>
+<span class="text-[9px] font-telemetry text-monochrome-muted block">Target &lt; 14</span>
+</div>
+</div>
+<div class="bg-black/80 rounded-xl p-2 border border-white/10 flex items-center justify-between text-[10px] font-telemetry">
+<span class="text-monochrome-muted">Executive Gating:</span>
+<span class="text-orange-vibrant font-bold uppercase flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-orange-vibrant animate-pulse"></span>
+                Tier-5 Unrestricted
+              </span>
+</div>
+</div>
+</div>
+<!-- WIDGET 2: Critical Ops Dispatch -->
+<div class="hud-glass-panel rounded-2xl p-3.5 flex flex-col gap-2.5 transition-all" id="widget-ops">
+<div class="flex items-center justify-between border-b border-white/[0.08] pb-2 cursor-pointer" onclick="toggleWidget('widget-ops')">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-monochrome-muted hover:text-white cursor-grab text-base">drag_indicator</span>
+<span class="material-symbols-outlined text-orange-vibrant text-base">notifications_active</span>
+<h3 class="text-xs font-headline font-bold uppercase tracking-wider text-white">Critical Ops Dispatch</h3>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[9px] font-telemetry px-1.5 py-0.5 rounded bg-orange-vibrant/20 text-orange-vibrant border border-orange-vibrant/40 font-bold">3 ALERTS</span>
+<button class="widget-chevron text-monochrome-muted hover:text-white transition-transform">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+<div class="widget-body space-y-2 text-xs">
+<div class="p-2.5 rounded-xl bg-black/90 border border-orange-molten/40 flex flex-col gap-1 hover:border-orange-vibrant transition-colors">
+<div class="flex items-center justify-between">
+<span class="text-[9px] font-telemetry font-bold text-orange-vibrant uppercase flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-orange-vibrant"></span>
+                  [HIGH] Mercury Wire Authorization
+                </span>
+<span class="text-[9px] font-telemetry text-monochrome-muted">02m ago</span>
+</div>
+<p class="text-[11px] font-body text-monochrome-bright leading-tight">
+                Invoice #1094 for H100 SXM5 GPU Node renewal ($14,200). Awaiting voice sign.
+              </p>
+<div class="flex items-center gap-2 mt-1">
+<button class="px-2 py-0.5 rounded bg-orange-vibrant hover:bg-orange-molten text-black font-telemetry text-[10px] font-bold transition-all" onclick="approveAction('wire')">Quick Sign</button>
+<button class="px-2 py-0.5 rounded bg-[#141720] text-monochrome-muted hover:text-white font-telemetry text-[10px] border border-white/10 transition-colors">Inspect</button>
+</div>
+</div>
+<div class="p-2.5 rounded-xl bg-black/80 border border-white/10 flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="text-[9px] font-telemetry font-bold text-white uppercase">[GROWTH] Meta Ad Swarm</span>
+<span class="text-[9px] font-telemetry text-monochrome-muted">11m ago</span>
+</div>
+<p class="text-[11px] font-body text-monochrome-muted leading-tight">
+                ROAS reached 4.21x. Autoscale suggests boosting daily cap from $3k to $7.5k.
+              </p>
+</div>
+</div>
+</div>
+<!-- WIDGET 3: Swarm Physics Modeler -->
+<div class="hud-glass-panel rounded-2xl p-3 flex flex-col gap-2" id="widget-physics">
+<div class="flex items-center justify-between border-b border-white/[0.08] pb-1.5 cursor-pointer" onclick="toggleWidget('widget-physics')">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-monochrome-muted hover:text-white cursor-grab text-base">drag_indicator</span>
+<span class="text-[11px] font-headline font-bold text-white uppercase">Swarm Physics Modeler</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-monochrome-muted">tune</span>
+<button class="widget-chevron text-monochrome-muted hover:text-white transition-transform">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+<div class="widget-body space-y-2 pt-1">
+<div>
+<div class="flex justify-between text-[10px] font-telemetry text-monochrome-muted mb-0.5">
+<span>Repel Force</span>
+<span class="text-white font-bold" id="repel-val">180 N</span>
+</div>
+<input class="w-full h-1 bg-[#181a24] rounded appearance-none accent-orange-vibrant cursor-pointer" id="repel-slider" max="300" min="50" oninput="updatePhysics()" type="range" value="180"/>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-telemetry text-monochrome-muted mb-0.5">
+<span>Conduit Damping</span>
+<span class="text-white font-bold" id="damping-val">240 px</span>
+</div>
+<input class="w-full h-1 bg-[#181a24] rounded appearance-none accent-orange-vibrant cursor-pointer" id="damping-slider" max="400" min="100" oninput="updatePhysics()" type="range" value="240"/>
+</div>
+</div>
+</div>
+</aside>
+<!-- ================= CENTERPIECE: PREMIER ENTERPRISE VOICE AI & OFFICIAL HUGO SOLAR ORB ================= -->
+<section class="flex-1 flex flex-col items-center justify-center pointer-events-auto py-2 order-1 xl:order-2 my-4 xl:my-0">
+<!-- Live Voice Sovereign Beacon Strip -->
+<div class="mb-3 px-3.5 py-1 rounded-full bg-black/90 border border-orange-vibrant/40 backdrop-blur-xl flex items-center gap-2.5 shadow-[0_0_20px_rgba(234,88,12,0.25)]">
+<span class="w-2 h-2 rounded-full bg-orange-vibrant animate-ping"></span>
+<span class="text-[10px] font-telemetry font-bold text-white tracking-widest uppercase">
+            HUGO CANONICAL CONDUIT // <span class="text-orange-vibrant">LIVE VOICE ORCHESTRATION</span>
+</span>
+<span class="text-[9px] font-telemetry text-monochrome-muted">60Hz LOCK</span>
+</div>
+<!-- THE SOLE CANONICAL HUGO ORB CONTAINER (PURE BORDERLESS CELESTIAL ENGINE) -->
+<div class="relative flex items-center justify-center select-none" style="width: 290px; height: 290px;">
+<!-- LAYER 1: Dual Counter-Rotating Molten Deep Orange & Amber Solar Corona Vapor -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<!-- Corona Vortex 1 (Clockwise) -->
+<div class="corona-clock absolute w-72 h-72 rounded-full opacity-90 mix-blend-screen" style="background: conic-gradient(from 0deg, #c2410c 0deg, #ea580c 45deg, #f97316 90deg, transparent 150deg, #9a3412 210deg, #ea580c 280deg, transparent 360deg);
+                        filter: blur(14px);
+                        mask-image: radial-gradient(circle, transparent 42%, black 54%, black 65%, transparent 76%);
+                        -webkit-mask-image: radial-gradient(circle, transparent 42%, black 54%, black 65%, transparent 76%);">
+</div>
+<!-- Corona Vortex 2 (Counter-Clockwise Molten Drift) -->
+<div class="corona-counter absolute w-64 h-64 rounded-full opacity-75 mix-blend-screen" style="background: conic-gradient(from 180deg, #ff7a18 0deg, transparent 90deg, #ea580c 180deg, #c2410c 270deg, transparent 360deg);
+                        filter: blur(11px);
+                        mask-image: radial-gradient(circle, transparent 44%, black 52%, black 63%, transparent 74%);
+                        -webkit-mask-image: radial-gradient(circle, transparent 44%, black 52%, black 63%, transparent 74%);">
+</div>
+<!-- Deep Orange Photon Bloom Behind Core -->
+<div class="absolute w-48 h-48 rounded-full bg-orange-vibrant/20 blur-2xl animate-pulse"></div>
+</div>
+<!-- LAYER 2: Pure Obsidian Light-Trap Void Disc (#000000) -->
+<div class="absolute w-44 h-44 rounded-full bg-[#000000] shadow-[inset_0_0_30px_12px_#000000,0_0_24px_rgba(0,0,0,1)] z-10"></div>
+<!-- LAYER 3: Official Canonical Chromatic Glitch Fringe Core Asset https://lh3.googleusercontent.com/aida-public/AB6AXuAr12nlySbK_Gi9Z33YJQjZDK8oqSsnEc1WByVbpphJt-NzoKdvGH7fujnrg5Q6pc4pUqQWjkgoFh2qrICgzg-VNizTBvDp8HXSRp7qcBEKEdeaD9EZ6Dvyot64Wfwb2dGWkLDMmtoke5083Aj_py_59FOQevDpkYO5Flm4SIsZWRxS3aOMaYep4J7er7FW3N55N_AxMjfhF6NfRKzQKJ7t6wq82qPVC-5j9aDJPFAYxHOn7m24J_hrFoyfCdzC6vf7oA -->
+<div class="relative w-44 h-44 rounded-full overflow-hidden z-20 flex items-center justify-center cursor-pointer group" onclick="pulseVoiceCenter()">
+<img alt="Official Hugo Canonical Neural Core" class="w-full h-full object-contain pointer-events-none drop-shadow-[0_0_20px_rgba(234,88,12,0.45)] group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEtEGOdxMc_Ar215BQ8Ngl7zwmmt5MtScZbZAx3xGIDRGHfqNiWnXcDRG-TfnjCk9_hzZk03XsM1SfjwoUCZ2hf3s8Ys-qZH3tLeefp8-bH00ywS9oKk14hDIj_3BZS3mq-qOB9S9GdZovv0_XL6o6Rep7A5XZgKlLpmU2WAmhDDykfxX84GwZ7M1RXCQ1HOAT-d7Lf2Vgukl4sWklDuiyKwWrQ5d8HOutf83tI6N60EKajwnPTE-CRNzTKOfX4r7A_A"/>
+</div>
+</div>
+<!-- INTEGRATED MULTI-BAND VOICE INTERACTION HUD -->
+<div class="mt-4 w-full max-w-md bg-[#07080b]/90 border border-white/10 rounded-2xl p-3 flex flex-col items-center gap-2 backdrop-blur-xl shadow-2xl">
+<div class="w-full flex items-center justify-between text-[10px] font-telemetry">
+<span class="text-monochrome-muted uppercase flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-orange-vibrant"></span>
+              ACTIVE CONDUIT: <strong class="text-white">HUGO-ZOEY 4.9 EXECUTIVE</strong>
+</span>
+<span class="text-orange-vibrant font-bold">LATENCY: 0.8ms</span>
+</div>
+<!-- High-Fidelity Audio Spectrogram Waves (Orange & White Contrast) -->
+<div class="w-full h-8 flex items-center justify-center gap-1 px-3 py-1 bg-black/90 rounded-xl border border-white/[0.06]" id="main-spectrogram">
+<!-- 28 interactive dynamic audio bars generated dynamically -->
+</div>
+<!-- Live Voice Prompt / Response Capsule -->
+<div class="w-full flex items-center justify-between gap-2 pt-1 border-t border-white/[0.08] text-[11px] font-telemetry">
+<div class="flex items-center gap-2 truncate text-monochrome-bright">
+<span class="material-symbols-outlined text-orange-vibrant text-sm">record_voice_over</span>
+<span class="truncate italic text-white" id="live-speech-transcription">"Awaiting command Zubair: Say 'Approve Wire' or press space..."</span>
+</div>
+<button class="px-2 py-0.5 rounded bg-white text-black font-semibold text-[10px] hover:bg-monochrome-bright transition-colors shrink-0" onclick="triggerVoiceSample()">
+              Speak
+            </button>
+</div>
+</div>
+<!-- Telemetry Caption Under Orb -->
+<div class="mt-2.5 flex items-center gap-3 text-[10px] font-telemetry">
+<span class="flex items-center gap-1.5 text-monochrome-muted">
+<span class="w-1.5 h-1.5 rounded-full bg-black border border-monochrome-dark"></span>
+            CORE: <strong class="text-white">OBSIDIAN VOID #000000</strong>
+</span>
+<span class="text-monochrome-dark">•</span>
+<span class="flex items-center gap-1.5 text-monochrome-muted">
+<span class="w-1.5 h-1.5 rounded-full bg-orange-vibrant"></span>
+            HALO: <strong class="text-orange-vibrant">BURNT SOLAR VAPOR (60Hz)</strong>
+</span>
+<span class="text-monochrome-dark">•</span>
+<span class="text-white font-bold">AIR-GAP SAFE</span>
+</div>
+</section>
+<!-- ================= RIGHT FLANK (MODULAR TELEMETRY DIAL & FLEET) ================= -->
+<aside class="w-full xl:w-[370px] flex flex-col gap-3 pointer-events-auto shrink-0 order-3">
+<!-- WIDGET 4: J.A.R.V.I.S. Tech Engine Dial -->
+<div class="hud-glass-panel rounded-2xl p-3.5 flex flex-col items-center relative overflow-hidden transition-all" id="widget-jarvis">
+<div class="w-full flex items-center justify-between border-b border-white/[0.08] pb-2 mb-1 cursor-pointer" onclick="toggleWidget('widget-jarvis')">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-monochrome-muted hover:text-white cursor-grab text-base">drag_indicator</span>
+<span class="material-symbols-outlined text-sm text-orange-vibrant">hdr_strong</span>
+<span class="text-xs font-headline font-bold uppercase tracking-wider text-white">J.A.R.V.I.S. Core Dial</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[9px] font-telemetry px-1.5 py-0.5 rounded bg-white/10 text-white border border-white/20 font-bold">ONLINE</span>
+<button class="widget-chevron text-monochrome-muted hover:text-white transition-transform">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+<div class="widget-body w-full flex flex-col items-center">
+<!-- Precision Monochrome & Deep Orange Gauge -->
+<div class="relative w-36 h-36 flex items-center justify-center my-1">
+<!-- Outer dashed ring -->
+<div class="absolute inset-0 rounded-full border border-dashed border-white/20 animate-spin" style="animation-duration: 40s;"></div>
+<!-- Middle orange ring -->
+<div class="absolute inset-2.5 rounded-full border border-white/10 border-t-orange-vibrant animate-spin" style="animation-duration: 12s; animation-direction: reverse;"></div>
+<!-- SVG Arc Gauge -->
+<svg class="w-28 h-28 transform -rotate-90">
+<circle cx="56" cy="56" fill="transparent" r="48" stroke="#1f222e" stroke-width="5"></circle>
+<circle cx="56" cy="56" fill="transparent" r="48" stroke="#ea580c" stroke-dasharray="301" stroke-dashoffset="60" stroke-linecap="round" stroke-width="5"></circle>
+</svg>
+<!-- Center Readout -->
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="text-[8px] font-telemetry text-monochrome-muted uppercase tracking-wider">AI AGENT CORE</span>
+<span class="text-xl font-headline font-bold text-white tracking-tight">99.98%</span>
+<span class="text-[8px] font-telemetry text-orange-vibrant uppercase font-bold">6/6 Layers Active</span>
+</div>
+</div>
+<div class="w-full grid grid-cols-2 gap-1.5 text-[10px] font-telemetry mt-1">
+<div class="p-1.5 rounded bg-black/90 border border-white/10 flex justify-between">
+<span class="text-monochrome-muted">Opus-5 Load:</span>
+<span class="text-white font-bold">28%</span>
+</div>
+<div class="p-1.5 rounded bg-black/90 border border-white/10 flex justify-between">
+<span class="text-monochrome-muted">Uptime:</span>
+<span class="text-white font-bold">99.98%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- WIDGET 5: Gestural Vision Link -->
+<div class="hud-glass-panel rounded-2xl p-3.5 flex flex-col gap-2.5 transition-all" id="widget-vision">
+<div class="flex items-center justify-between border-b border-white/[0.08] pb-1.5 cursor-pointer" onclick="toggleWidget('widget-vision')">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-monochrome-muted hover:text-white cursor-grab text-base">drag_indicator</span>
+<span class="material-symbols-outlined text-white text-base">front_hand</span>
+<h3 class="text-xs font-headline font-bold uppercase tracking-wider text-white">Spatial Vision Conduit</h3>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[9px] font-telemetry text-orange-vibrant font-bold">120 FPS LOCK</span>
+<button class="widget-chevron text-monochrome-muted hover:text-white transition-transform">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+<div class="widget-body flex flex-col gap-2">
+<!-- Radar Tracking Screen -->
+<div class="h-14 w-full rounded-xl bg-black/95 border border-white/10 flex items-center justify-around px-3 relative overflow-hidden">
+<div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:16px_16px]"></div>
+<div class="text-center z-10">
+<span class="text-[9px] font-telemetry text-monochrome-muted block">L-HAND</span>
+<span class="text-xs font-telemetry font-bold text-white">TRACKED (98%)</span>
+</div>
+<div class="h-6 w-[1px] bg-white/10 z-10"></div>
+<div class="text-center z-10">
+<span class="text-[9px] font-telemetry text-monochrome-muted block">R-PINCH</span>
+<span class="text-xs font-telemetry font-bold text-orange-vibrant">ACTIVE LOCK</span>
+</div>
+<div class="h-6 w-[1px] bg-white/10 z-10"></div>
+<div class="text-center z-10">
+<span class="text-[9px] font-telemetry text-monochrome-muted block">SPATIAL POSE</span>
+<span class="text-xs font-telemetry font-bold text-monochrome-bright">ORBIT_SWARM</span>
+</div>
+</div>
+<!-- Gesture Cheat Matrix -->
+<div class="grid grid-cols-2 gap-1 text-[9px] font-telemetry">
+<div class="p-1 rounded bg-black/80 border border-white/10 flex justify-between">
+<span class="text-monochrome-muted">PINCH TAP:</span>
+<span class="text-white font-bold">Fly to Node</span>
+</div>
+<div class="p-1 rounded bg-black/80 border border-white/10 flex justify-between">
+<span class="text-monochrome-muted">PALM-FIST:</span>
+<span class="text-orange-vibrant font-bold">Pull Swarm</span>
+</div>
+</div>
+</div>
+</div>
+<!-- WIDGET 6: Mobile Automation Fleet -->
+<div class="hud-glass-panel rounded-2xl p-3 flex flex-col gap-2" id="widget-fleet">
+<div class="flex items-center justify-between border-b border-white/[0.08] pb-1.5 cursor-pointer" onclick="toggleWidget('widget-fleet')">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-monochrome-muted hover:text-white cursor-grab text-base">drag_indicator</span>
+<span class="text-[11px] font-headline font-bold text-white uppercase">Mobile Device Farm</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[9px] font-telemetry text-white font-bold">2/2 ACTIVE</span>
+<button class="widget-chevron text-monochrome-muted hover:text-white transition-transform">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+<div class="widget-body space-y-1.5 text-[10px] font-telemetry pt-1">
+<div class="p-2 rounded-xl bg-black/90 border border-white/10 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-orange-vibrant"></span>
+<span class="text-white font-bold">iPhone 16 Pro Max</span>
+</div>
+<span class="text-monochrome-muted">Checkout QA (Step 14/19)</span>
+</div>
+<div class="p-2 rounded-xl bg-black/90 border border-white/10 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+<span class="text-white font-bold">iPad Pro 13" M4</span>
+</div>
+<span class="text-monochrome-muted">Standby • OCR Conduit</span>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- 4. BOTTOM FLOATING DRAWER: HUMAN-IN-THE-LOOP (HITL) DECISION QUEUE -->
+<footer class="w-full px-4 md:px-6 pb-3 pointer-events-auto">
+<div class="hud-glass-panel rounded-2xl p-3.5 shadow-2xl transition-all duration-300 border-t border-t-orange-vibrant/40 hud-laser-border" id="hitl-container">
+<!-- Queue Header with Filters & Docking Toggle -->
+<div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-2 mb-2.5">
+<div class="flex items-center gap-3 cursor-pointer" onclick="toggleHITLDrawer()">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-orange-vibrant text-lg" style="font-variation-settings: 'FILL' 1;">rule_settings</span>
+<h2 class="text-xs font-headline font-bold uppercase tracking-wider text-white">HITL Decision Queue</h2>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-telemetry font-bold bg-orange-vibrant/20 text-orange-vibrant border border-orange-vibrant/40" id="pending-counter-badge">
+              3 Pending Command Decisions
+            </span>
+</div>
+<div class="flex items-center gap-3 text-[11px] font-telemetry">
+<span class="text-monochrome-muted hidden lg:inline">
+              Swipe Gesture: <strong class="text-white">Right = Execute</strong> | <strong class="text-rose-400">Left = Reject</strong>
+</span>
+<div class="h-4 w-[1px] bg-white/10 hidden lg:inline"></div>
+<span class="text-monochrome-muted">Auto-Deferral in: <strong class="text-white" id="countdown-timer">04m 12s</strong></span>
+<!-- Minimize / Dock button -->
+<button class="p-1 rounded bg-[#10121a] hover:bg-[#1a1d29] text-monochrome-muted hover:text-white border border-white/10 transition-colors" onclick="toggleHITLDrawer()">
+<span class="material-symbols-outlined text-sm" id="hitl-chevron-icon">keyboard_arrow_down</span>
+</button>
+</div>
+</div>
+<!-- 3 High-Stakes Decision Cards (60% Obsidian, 30% Monochrome, 10% Deep Orange Primary Action) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="hitl-cards-grid">
+<!-- Card 1: Treasury Wire -->
+<div class="bg-[#050608]/95 border border-orange-molten/40 rounded-xl p-3 flex flex-col justify-between hover:border-orange-vibrant transition-all shadow-xl" id="card-wire">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="text-[9px] font-telemetry font-bold px-1.5 py-0.5 rounded bg-orange-vibrant/15 text-orange-vibrant border border-orange-vibrant/30 uppercase">
+                  TREASURY // WIRE
+                </span>
+<span class="text-xs font-telemetry font-bold text-white">$14,200.00 USD</span>
+</div>
+<h4 class="text-xs font-headline font-bold text-white mt-1">Lambda Labs 8x H100 GPU Lease</h4>
+<p class="text-[11px] font-body text-monochrome-muted mt-1 leading-tight">
+                Dedicated cluster reservation for SkyAI distillation. Mercury wire routing verified &amp; ready.
+              </p>
+</div>
+<div class="mt-2.5 pt-2 border-t border-white/[0.08] flex items-center justify-between gap-2">
+<button class="flex-1 py-1.5 rounded-lg bg-orange-vibrant hover:bg-orange-molten text-black text-xs font-headline font-bold flex items-center justify-center gap-1 transition-all shadow-md active:scale-95" onclick="approveAction('wire')">
+<span>Approve Wire (Swipe →)</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg bg-[#14080a] hover:bg-[#260c10] text-rose-300 text-xs font-headline border border-rose-900/50 transition-colors" onclick="rejectAction('wire')">
+                Reject (&lt;)
+              </button>
+</div>
+</div>
+<!-- Card 2: Legal Defense SLA -->
+<div class="bg-[#050608]/95 border border-white/15 rounded-xl p-3 flex flex-col justify-between hover:border-white/40 transition-all shadow-xl" id="card-legal">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="text-[9px] font-telemetry font-bold px-1.5 py-0.5 rounded bg-white/10 text-white border border-white/20 uppercase">
+                  LEGAL AUTONOMY SLA
+                </span>
+<span class="text-xs font-telemetry font-bold text-white">$120,000 / YR</span>
+</div>
+<h4 class="text-xs font-headline font-bold text-white mt-1">Nexus Vanguard SLA Counter-Sign</h4>
+<p class="text-[11px] font-body text-monochrome-muted mt-1 leading-tight">
+                Redlines accepted with 99.99% uptime guarantee and unlimited API token access. Cryptographic sign requested.
+              </p>
+</div>
+<div class="mt-2.5 pt-2 border-t border-white/[0.08] flex items-center justify-between gap-2">
+<button class="flex-1 py-1.5 rounded-lg bg-white hover:bg-monochrome-mid text-black text-xs font-headline font-bold flex items-center justify-center gap-1 transition-all shadow-md active:scale-95" onclick="approveAction('legal')">
+<span>Sign &amp; Seal (Swipe →)</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg bg-[#0c0d12] hover:bg-[#161824] text-monochrome-muted hover:text-white text-xs font-headline border border-white/10 transition-colors">
+                Modify
+              </button>
+</div>
+</div>
+<!-- Card 3: Outbound Agent Dispatch -->
+<div class="bg-[#050608]/95 border border-white/15 rounded-xl p-3 flex flex-col justify-between hover:border-orange-molten transition-all shadow-xl" id="card-dispatch">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="text-[9px] font-telemetry font-bold px-1.5 py-0.5 rounded bg-orange-burnt/30 text-orange-vibrant border border-orange-burnt/50 uppercase">
+                  OUTBOUND AGENT SWARM
+                </span>
+<span class="text-xs font-telemetry font-bold text-white">1,240 TARGETS</span>
+</div>
+<h4 class="text-xs font-headline font-bold text-white mt-1">AI Fleet Scaler v4 Outbound Launch</h4>
+<p class="text-[11px] font-body text-monochrome-muted mt-1 leading-tight">
+                Personalized voice video synthesis generated for Series A/B Founders. Domain warm-up nominal.
+              </p>
+</div>
+<div class="mt-2.5 pt-2 border-t border-white/[0.08] flex items-center justify-between gap-2">
+<button class="flex-1 py-1.5 rounded-lg bg-orange-vibrant hover:bg-orange-molten text-black text-xs font-headline font-bold flex items-center justify-center gap-1 transition-all shadow-md active:scale-95" onclick="approveAction('dispatch')">
+<span>Dispatch 1,240 (Swipe →)</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg bg-[#0c0d12] hover:bg-[#161824] text-monochrome-muted hover:text-white text-xs font-headline border border-white/10 transition-colors" onclick="rejectAction('dispatch')">
+                Hold
+              </button>
+</div>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<!-- MODULAR LAYOUT CUSTOMIZATION MODAL (Slide-over drawer) -->
+<div class="fixed inset-y-0 right-0 w-80 bg-[#06070a]/98 border-l border-white/10 backdrop-blur-2xl z-50 p-5 flex flex-col justify-between transform translate-x-full transition-transform duration-300 shadow-2xl pointer-events-auto" id="layout-drawer">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-white/10 pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-orange-vibrant">tune</span>
+<h3 class="text-sm font-headline font-bold text-white uppercase tracking-wider">HUD Deck Modularity</h3>
+</div>
+<button class="text-monochrome-muted hover:text-white" onclick="toggleLayoutCustomizer()">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+<p class="text-xs font-body text-monochrome-muted">
+        Configure widget persistence, visual density, and audio conduit rendering.
+      </p>
+<div class="space-y-3 font-telemetry text-xs">
+<label class="flex items-center justify-between p-2 rounded bg-black/80 border border-white/10 cursor-pointer">
+<span class="text-white">Readiness Widget</span>
+<input checked="" class="rounded bg-black border-white/20 text-orange-vibrant focus:ring-0 cursor-pointer" onchange="toggleWidgetVisibility('widget-bio')" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-2 rounded bg-black/80 border border-white/10 cursor-pointer">
+<span class="text-white">Critical Ops Dispatch</span>
+<input checked="" class="rounded bg-black border-white/20 text-orange-vibrant focus:ring-0 cursor-pointer" onchange="toggleWidgetVisibility('widget-ops')" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-2 rounded bg-black/80 border border-white/10 cursor-pointer">
+<span class="text-white">J.A.R.V.I.S. Core Dial</span>
+<input checked="" class="rounded bg-black border-white/20 text-orange-vibrant focus:ring-0 cursor-pointer" onchange="toggleWidgetVisibility('widget-jarvis')" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-2 rounded bg-black/80 border border-white/10 cursor-pointer">
+<span class="text-white">Spatial Vision Conduit</span>
+<input checked="" class="rounded bg-black border-white/20 text-orange-vibrant focus:ring-0 cursor-pointer" onchange="toggleWidgetVisibility('widget-vision')" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-2 rounded bg-black/80 border border-white/10 cursor-pointer">
+<span class="text-white">Mobile Device Farm</span>
+<input checked="" class="rounded bg-black border-white/20 text-orange-vibrant focus:ring-0 cursor-pointer" onchange="toggleWidgetVisibility('widget-fleet')" type="checkbox"/>
+</label>
+</div>
+</div>
+<div class="border-t border-white/10 pt-4 flex flex-col gap-2">
+<button class="w-full py-2 rounded bg-white text-black font-headline font-bold text-xs hover:bg-monochrome-mid transition-all" onclick="expandAllWidgets()">
+        Expand All Panels
+      </button>
+<button class="w-full py-2 rounded bg-[#10121a] text-monochrome-muted hover:text-white font-headline text-xs border border-white/10 transition-all" onclick="collapseAllWidgets()">
+        Collapse All Panels
+      </button>
+</div>
+</div>
+<!-- ================= SCRIPTS: THREE.JS SWARM + AUDIO WAVE ENGINE + HITL LOGIC ================= -->
+<script>
+    // 1. COLLAPSIBLE / MODULAR WIDGET SYSTEM
+    function toggleWidget(widgetId) {
+      const el = document.getElementById(widgetId);
+      if (el) {
+        el.classList.toggle('widget-collapsed');
+      }
+    }
+
+    function toggleWidgetVisibility(widgetId) {
+      const el = document.getElementById(widgetId);
+      if (el) {
+        el.classList.toggle('hidden');
+      }
+    }
+
+    function collapseAllWidgets() {
+      ['widget-bio', 'widget-ops', 'widget-physics', 'widget-jarvis', 'widget-vision', 'widget-fleet'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('widget-collapsed');
+      });
+    }
+
+    function expandAllWidgets() {
+      ['widget-bio', 'widget-ops', 'widget-physics', 'widget-jarvis', 'widget-vision', 'widget-fleet'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('widget-collapsed');
+      });
+    }
+
+    function toggleLayoutCustomizer() {
+      const drawer = document.getElementById('layout-drawer');
+      drawer.classList.toggle('translate-x-full');
+    }
+
+    // 2. HITL DECISION DRAWER DOCK/COLLAPSE
+    let hitlCollapsed = false;
+    function toggleHITLDrawer() {
+      const container = document.getElementById('hitl-cards-grid');
+      const icon = document.getElementById('hitl-chevron-icon');
+      hitlCollapsed = !hitlCollapsed;
+      if (hitlCollapsed) {
+        container.style.display = 'none';
+        icon.innerText = 'keyboard_arrow_up';
+      } else {
+        container.style.display = 'grid';
+        icon.innerText = 'keyboard_arrow_down';
+      }
+    }
+
+    let pendingCount = 3;
+    function approveAction(cardKey) {
+      const card = document.getElementById('card-' + cardKey);
+      if (!card) return;
+      card.style.opacity = '0.4';
+      card.style.transform = 'translateX(60px)';
+      setTimeout(() => {
+        card.remove();
+        pendingCount = Math.max(0, pendingCount - 1);
+        document.getElementById('pending-counter-badge').innerText = `${pendingCount} Pending Command Decisions`;
+        updateVoiceTranscript(`Action confirmed: ${cardKey.toUpperCase()} authorized by executive command.`);
+      }, 300);
+    }
+
+    function rejectAction(cardKey) {
+      const card = document.getElementById('card-' + cardKey);
+      if (!card) return;
+      card.style.opacity = '0.3';
+      card.style.transform = 'translateX(-60px)';
+      setTimeout(() => {
+        card.remove();
+        pendingCount = Math.max(0, pendingCount - 1);
+        document.getElementById('pending-counter-badge').innerText = `${pendingCount} Pending Command Decisions`;
+        updateVoiceTranscript(`Action rejected: ${cardKey.toUpperCase()} held in isolation queue.`);
+      }, 300);
+    }
+
+    // 3. VOICE AGENT & DYNAMIC SPECTROGRAM ENGINE
+    const spectrogramContainer = document.getElementById('main-spectrogram');
+    const barCount = 28;
+    const bars = [];
+    if (spectrogramContainer) {
+      for (let i = 0; i < barCount; i++) {
+        const bar = document.createElement('span');
+        const isOrange = i % 2 === 0;
+        bar.className = `w-1 rounded-full transition-all duration-75 ${isOrange ? 'bg-orange-vibrant' : 'bg-white'}`;
+        bar.style.height = `${4 + Math.random() * 20}px`;
+        spectrogramContainer.appendChild(bar);
+        bars.push(bar);
+      }
+    }
+
+    let audioActive = true;
+    function animateVoiceWave() {
+      if (audioActive && bars.length > 0) {
+        bars.forEach((b, idx) => {
+          const wave = Math.sin(Date.now() * 0.008 + idx * 0.4);
+          const height = Math.max(3, Math.floor((wave + 1) * 12 + Math.random() * 6));
+          b.style.height = `${height}px`;
+        });
+      }
+      requestAnimationFrame(animateVoiceWave);
+    }
+    requestAnimationFrame(animateVoiceWave);
+
+    function updateVoiceTranscript(text) {
+      const el = document.getElementById('live-speech-transcription');
+      if (el) {
+        el.innerText = `"${text}"`;
+      }
+    }
+
+    function triggerVoiceSample() {
+      const prompts = [
+        "Executive authorization received. Commencing high-speed GPU cluster spin-up.",
+        "Voice conduit verified. Latency steady at 0.8ms. Swarm in perfect sync.",
+        "SLA signed with cryptographic key. Stored on decentralized Ledger.",
+        "Outbound campaign dispatched. 1,240 personalized voice synthetics launched."
+      ];
+      const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+      updateVoiceTranscript(randomPrompt);
+    }
+
+    function pulseVoiceCenter() {
+      triggerVoiceSample();
+    }
+
+    function toggleTalkHUD() {
+      const btn = document.getElementById('btn-talk-hud');
+      if (btn) {
+        btn.classList.toggle('bg-orange-vibrant');
+        btn.classList.toggle('bg-white');
+        updateVoiceTranscript("Hands-Free Talk Mode activated. Listening for executive voice stream...");
+      }
+    }
+
+    // Search ⌘K shortcut
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        const searchInput = document.getElementById('brain-search');
+        if (searchInput) searchInput.focus();
+      }
+      if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        triggerVoiceSample();
+      }
+    });
+
+    // Countdown Timer logic
+    let remainingSeconds = 252;
+    setInterval(() => {
+      if (remainingSeconds > 0) {
+        remainingSeconds--;
+        const mins = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+        const secs = String(remainingSeconds % 60).padStart(2, '0');
+        const el = document.getElementById('countdown-timer');
+        if (el) el.innerText = `${mins}m ${secs}s`;
+      }
+    }, 1000);
+
+    // 4. THREE.JS 3D PARTICLES / NEURAL SWARM GRAPH (Strict 60% Black, Deep Orange & Monochrome)
+    let swarmGroup, scene, camera, renderer;
+    let swarmDensityHigh = true;
+
+    function init3DSwarm() {
+      const canvas = document.getElementById('threejs-swarm-canvas');
+      if (!canvas) return;
+
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x000000, 0.002);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+      camera.position.set(0, 20, 250);
+
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+      scene.add(ambientLight);
+
+      // Deep orange point light & crisp white edge light
+      const orangeLight = new THREE.PointLight(0xea580c, 2.5, 600);
+      orangeLight.position.set(0, 0, 80);
+      scene.add(orangeLight);
+
+      const whiteLight = new THREE.PointLight(0xffffff, 1.2, 500);
+      whiteLight.position.set(-100, 100, 60);
+      scene.add(whiteLight);
+
+      swarmGroup = new THREE.Group();
+      scene.add(swarmGroup);
+
+      // Restrained Palette: Crisp White, Silver/Slate, Deep Orange, Molten Amber
+      const palette = [0xffffff, 0xe4e4e7, 0xa1a1aa, 0xea580c, 0xf97316, 0x71717a];
+      const nodes = [];
+      const sphereGeo = new THREE.SphereGeometry(1, 14, 14);
+
+      for (let i = 0; i < 85; i++) {
+        const radius = 65 + Math.random() * 125;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = (Math.random() - 0.5) * Math.PI * 0.85;
+
+        const x = radius * Math.cos(theta) * Math.cos(phi);
+        const y = radius * Math.sin(phi) + (Math.random() - 0.5) * 35;
+        const z = radius * Math.sin(theta) * Math.cos(phi);
+
+        const color = palette[Math.floor(Math.random() * palette.length)];
+        const isOrange = color === 0xea580c || color === 0xf97316;
+
+        const mat = new THREE.MeshPhongMaterial({
+          color: color,
+          emissive: color,
+          emissiveIntensity: isOrange ? 0.8 : 0.25,
+          shininess: 70
+        });
+
+        const mesh = new THREE.Mesh(sphereGeo, mat);
+        const size = 1.4 + Math.random() * 2.8;
+        mesh.scale.setScalar(size);
+        mesh.position.set(x, y, z);
+        mesh.userData = { size, isOrange, speed: 0.001 + Math.random() * 0.002 };
+
+        swarmGroup.add(mesh);
+        nodes.push(mesh);
+      }
+
+      // Connection lines
+      const lineCoords = [];
+      for (let i = 0; i < nodes.length; i++) {
+        const p1 = nodes[i].position;
+        for (let j = 0; j < 2; j++) {
+          const target = nodes[Math.floor(Math.random() * nodes.length)];
+          if (target !== nodes[i] && p1.distanceTo(target.position) < 95) {
+            lineCoords.push(p1.x, p1.y, p1.z, target.position.x, target.position.y, target.position.z);
+          }
+        }
+      }
+
+      const lineGeo = new THREE.BufferGeometry();
+      lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(lineCoords, 3));
+      const lineMat = new THREE.LineBasicMaterial({
+        color: 0xea580c,
+        transparent: true,
+        opacity: 0.15,
+        blending: THREE.AdditiveBlending
+      });
+      const lines = new THREE.LineSegments(lineGeo, lineMat);
+      swarmGroup.add(lines);
+
+      // Drag Orbit Rotation
+      let isDragging = false;
+      let prevMousePos = { x: 0, y: 0 };
+
+      window.addEventListener('mousedown', (e) => {
+        if (e.target === canvas) {
+          isDragging = true;
+          prevMousePos = { x: e.clientX, y: e.clientY };
+        }
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          const deltaX = e.clientX - prevMousePos.x;
+          const deltaY = e.clientY - prevMousePos.y;
+          swarmGroup.rotation.y += deltaX * 0.005;
+          swarmGroup.rotation.x += deltaY * 0.005;
+          prevMousePos = { x: e.clientX, y: e.clientY };
+        }
+      });
+
+      window.addEventListener('mouseup', () => { isDragging = false; });
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      let clock = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        clock += 0.02;
+
+        if (!isDragging) {
+          swarmGroup.rotation.y += 0.001;
+        }
+
+        nodes.forEach(node => {
+          if (node.userData.isOrange) {
+            const scalePulse = node.userData.size * (1 + Math.sin(clock * 4) * 0.15);
+            node.scale.setScalar(scalePulse);
+          }
+        });
+
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    function resetSwarmView() {
+      if (swarmGroup && camera) {
+        swarmGroup.rotation.set(0, 0, 0);
+        camera.position.set(0, 20, 250);
+      }
+    }
+
+    function toggleSwarmDensity() {
+      swarmDensityHigh = !swarmDensityHigh;
+      const text = document.getElementById('swarm-density-text');
+      if (text) text.innerText = swarmDensityHigh ? 'Active' : 'Muted';
+      if (swarmGroup) {
+        swarmGroup.visible = swarmDensityHigh;
+      }
+    }
+
+    function updatePhysics() {
+      const repel = document.getElementById('repel-slider').value;
+      const damping = document.getElementById('damping-slider').value;
+      document.getElementById('repel-val').innerText = `${repel} N`;
+      document.getElementById('damping-val').innerText = `${damping} px`;
+    }
+
+    window.addEventListener('DOMContentLoaded', init3DSwarm);
+  </script>
+</body></html>
